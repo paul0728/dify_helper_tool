@@ -1473,6 +1473,24 @@
                     // Chatflow → Workflow
                     convertedData.app.mode = 'workflow';
                     
+                    // 檢查 start 節點是否已有 query/message/input 變數
+                    const startNode = convertedData.workflow.graph.nodes.find(n => n.data.type === 'start');
+                    if (startNode && startNode.data.variables) {
+                        const hasInputVariable = startNode.data.variables.some(v => 
+                            v.variable === 'query' || v.variable === 'message' || v.variable === 'input'
+                        );
+                        
+                        // 如果都不存在，建立 query 變數
+                        if (!hasInputVariable) {
+                            startNode.data.variables.push({
+                                variable: 'query',
+                                type: 'string',
+                                required: true,
+                                default: ''
+                            });
+                        }
+                    }
+                    
                     // 轉換 answer 節點為 end 節點
                     convertedData.workflow.graph.nodes.forEach(node => {
                         if (node.data.type === 'answer') {
