@@ -1475,18 +1475,28 @@
                     
                     // 檢查 start 節點是否已有 query/message/input 變數
                     const startNode = convertedData.workflow.graph.nodes.find(n => n.data.type === 'start');
-                    if (startNode && startNode.data.variables) {
+                    if (startNode) {
+                        // 確保 variables 陣列存在
+                        if (!startNode.data.variables) {
+                            startNode.data.variables = [];
+                        }
+                        
                         const hasInputVariable = startNode.data.variables.some(v => 
                             v.variable === 'query' || v.variable === 'message' || v.variable === 'input'
                         );
                         
-                        // 如果都不存在，建立 query 變數
+                        // 如果都不存在，建立 query 變數（使用正確的 Workflow 格式）
                         if (!hasInputVariable) {
                             startNode.data.variables.push({
                                 variable: 'query',
-                                type: 'string',
+                                label: 'query',
+                                type: 'text-input',
+                                max_length: 48,
+                                default: '',
                                 required: true,
-                                default: ''
+                                hint: '',
+                                placeholder: '',
+                                options: []
                             });
                         }
                     }
